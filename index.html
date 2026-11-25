@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="CS1102 Project Group">
+    <meta name="description" content="CityUHK Campus Carbon Footprint Calculator & Sustainability Estimator">
+    <meta name="keywords" content="CS1102, CityUHK, Carbon Footprint, SDG 12, SDG 13">
+    <title>CityU GreenPulse | Campus Carbon Footprint Calculator</title>
+
+    <!-- CS1102 Lec 04: Internal CSS Styling -->
+    <style>
+        /* Global Reset and Typography */
+        body {
+            font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Top Navigation Bar */
+        #navbar {
+            background-color: #1b4332;
+            padding: 14px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        #navbar a {
+            color: #ffffff;
+            text-decoration: none;
+            margin: 0 18px;
+            font-weight: bold;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        #navbar a:hover {
+            color: #95d5b2;
+        }
+
+        /* Hero Banner */
+        #banner {
+            background: linear-gradient(135deg, #2d6a4f, #40916c, #52b788);
+            color: #ffffff;
+            text-align: center;
+            padding: 55px 20px;
+            border-bottom: 5px solid #1b4332;
+        }
+
+        #banner h1 {
+            margin: 0 0 10px 0;
+            font-size: 36px;
+            letter-spacing: 0.5px;
+        }
+
+        #banner p {
+            margin: 0 auto;
+            max-width: 720px;
+            font-size: 17px;
+            color: #e9f5db;
+        }
+
+        .sdg-badge {
+            display: inline-block;
+            background-color: #ffffff;
+            color: #1b4332;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin: 15px 5px 0 5px;
+        }
+
+        /* Main Page Container (CSS Box Model) */
+        #main_container {
+            width: 90%;
+            max-width: 960px;
+            margin: 30px auto;
+        }
+
+        /* Section Cards */
+        .section_box {
+            background-color: #ffffff;
+            border: 1px solid #d8e2dc;
+            border-radius: 10px;
+            padding: 25px 30px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+
+        .section_box h2 {
+            color: #1b4332;
+            border-bottom: 2px solid #b7e4c7;
+            padding-bottom: 8px;
+            margin-top: 0;
+        }
+
+        /* Form Grid Layout */
+        .form_row {
+            margin-bottom: 18px;
+            padding: 15px;
+            background-color: #f8fbf9;
+            border-left: 4px solid #40916c;
+            border-radius: 5px;
+        }
+
+        .form_row label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #1b4332;
+        }
+
+        .hint_text {
+            font-size: 13px;
+            color: #666666;
+            margin-top: 4px;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            max-width: 320px;
+            padding: 9px 12px;
+            border: 1px solid #b7e4c7;
+            border-radius: 5px;
+            font-size: 15px;
+            margin-top: 4px;
+        }
+
+        /* Interactive Buttons (Lec 04 Slide 42) */
+        .btn_primary {
+            background-color: #2d6a4f;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 12px 26px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn_primary:hover {
+            background-color: #1b4332;
+            transform: scale(1.03);
+        }
+
+        .btn_secondary {
+            background-color: #e9ecef;
+            color: #333333;
+            font-size: 15px;
+            font-weight: bold;
+            padding: 12px 20px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn_secondary:hover {
+            background-color: #dee2e6;
+        }
+
+        /* Results & Visual Meter */
+        #result_section {
+            display: none; /* Hidden until user calculates (Lec 04 Slide 45) */
+        }
+
+        .score_highlight {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1b4332;
+        }
+
+        /* Visual Comparison Ruler / Bar */
+        #meter_container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 20px;
+            height: 26px;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 1px solid #ced4da;
+        }
+
+        #meter_bar {
+            height: 100%;
+            width: 0%;
+            background-color: #40916c;
+            text-align: right;
+            padding-right: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 13px;
+            line-height: 26px;
+            transition: width 0.6s ease;
+        }
+
+        /* HTML Tables (Lec 04 Slide 41) */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #b7e4c7;
+            padding: 11px 14px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #2d6a4f;
+            color: #ffffff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fbf9;
+        }
+
+        .user_row {
+            background-color: #d8f3dc !important;
+            font-weight: bold;
+        }
+
+        /* Actionable Tips Box */
+        #tips_box {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffb703;
+            padding: 16px 20px;
+            border-radius: 6px;
+            margin-top: 18px;
+        }
+
+        #tips_box h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+
+        /* Campus Projection Card */
+        .campus_grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat_card {
+            flex: 1;
+            min-width: 200px;
+            background-color: #edf6f9;
+            border: 1px solid #bde0fe;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat_card h4 {
+            margin: 0 0 8px 0;
+            color: #023e8a;
+            font-size: 14px;
+        }
+
+        .stat_card span {
+            font-size: 22px;
+            font-weight: bold;
+            color: #0077b6;
+        }
+
+        /* Footer */
+        #footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #1b4332;
+            color: #d8f3dc;
+            font-size: 14px;
+            margin-top: 40px;
+        }
+    </style>
+
+    <!-- CS1102 Lec 05: JavaScript Logic -->
+    <script>
+        // Global Array to store daily student records (Lec 05 Slide 36 & 45)
+        // Pre-populated with 3 realistic CityU student sample baselines
+        var studentRecords = [4.5, 9.2, 14.8];
+        var CITYU_POPULATION = 20000; // Estimated CityUHK campus community size
+
+        // Function to validate inputs, calculate carbon footprint, and update DOM
+        function calculateFootprint() {
+            // 1. Collect User Inputs from HTML elements (Lec 05 Slide 50)
+            var transportFactor = Number(document.getElementById("transport_mode").value);
+            var distanceKm = Number(document.getElementById("distance_km").value);
+
+            var mealFactor = Number(document.getElementById("food_type").value);
+            var mealCount = Number(document.getElementById("meal_count").value);
+
+            var acHours = Number(document.getElementById("ac_hours").value);
+
+            var paperSheets = Number(document.getElementById("paper_sheets").value);
+            var plasticBottles = Number(document.getElementById("plastic_bottles").value);
+
+            // 2. Input Validation using Conditional & isNaN (Lec 05 Slide 16 & 27)
+            if (isNaN(distanceKm) || distanceKm < 0 ||
+                isNaN(mealCount) || mealCount < 0 ||
+                isNaN(acHours) || acHours < 0 ||
+                isNaN(paperSheets) || paperSheets < 0 ||
+                isNaN(plasticBottles) || plasticBottles < 0) {
+                alert("Please enter valid non-negative numbers for all fields!");
+                return;
+            }
+
+            // 3. Arithmetic Computations per Category (kg CO2e)
+            var transportCO2 = distanceKm * transportFactor;          // MTR: 0.04, Bus: 0.08, Walk: 0
+            var foodCO2 = mealCount * mealFactor;                     // Beef: 6.5, Pork/Chicken: 2.5, Veggie: 1.0
+            var acCO2 = acHours * 0.8;                                // 1 hr AC = 0.8 kg CO2e
+            var consumablesCO2 = (paperSheets * 0.01) + (plasticBottles * 0.15);
+
+            var totalCO2 = transportCO2 + foodCO2 + acCO2 + consumablesCO2;
+
+            // Round to 2 decimal places
+            totalCO2 = Math.round(totalCO2 * 100) / 100;
+
+            // 4. Store new record into Global Array (Lec 05 Slide 51)
+            studentRecords[studentRecords.length] = totalCO2;
+
+            // 5. Array Loop to calculate Mean, Max, Min across logged records (Lec 05 Slide 53)
+            var sum = 0;
+            var maxVal = studentRecords[0];
+            var minVal = studentRecords[0];
+            var i;
+
+            for (i = 0; i < studentRecords.length; i++) {
+                sum += studentRecords[i];
+                if (studentRecords[i] > maxVal) {
+                    maxVal = studentRecords[i];
+                }
+                if (studentRecords[i] < minVal) {
+                    minVal = studentRecords[i];
+                }
+            }
+            var sampleMean = Math.round((sum / studentRecords.length) * 100) / 100;
+
+            // 6. N-Way Conditional for Rating & Visual Ruler (Lec 05 Slide 21)
+            var ratingLabel = "";
+            var barColor = "";
+            var barPercent = (totalCO2 / 20) * 100; // Scale against 20 kg max benchmark
+            if (barPercent > 100) {
+                barPercent = 100;
+            }
+
+            if (totalCO2 <= 5.0) {
+                ratingLabel = "Low Carbon Hero (Below CityU Average)";
+                barColor = "#2d6a4f";
+            } else if (totalCO2 <= 10.5) {
+                ratingLabel = "Moderate (Near CityU Student Average)";
+                barColor = "#e9c46a";
+            } else {
+                ratingLabel = "High Carbon Footprint (Above Average)";
+                barColor = "#e76f51";
+            }
+
+            // Update Visual Meter Bar
+            var meterBar = document.getElementById("meter_bar");
+            meterBar.style.width = barPercent + "%";
+            meterBar.style.backgroundColor = barColor;
+            meterBar.innerHTML = totalCO2 + " kg";
+
+            // 7. Display Personal Summary & Breakdown
+            document.getElementById("user_total_display").innerHTML = totalCO2 + " kg CO<sub>2</sub>e / day";
+            document.getElementById("user_rating_display").innerHTML = ratingLabel;
+
+            document.getElementById("breakdown_display").innerHTML =
+                "Transport: <b>" + transportCO2.toFixed(2) + " kg</b> | " +
+                "Food: <b>" + foodCO2.toFixed(2) + " kg</b> | " +
+                "AC/Electricity: <b>" + acCO2.toFixed(2) + " kg</b> | " +
+                "Paper & Plastic: <b>" + consumablesCO2.toFixed(2) + " kg</b>";
+
+            // 8. Build Peer Comparison Table dynamically (Lec 04 Slide 41 + Lec 05 Slide 4)
+            var diffFromAvg = Math.round((totalCO2 - 9.2) * 100) / 100;
+            var diffText = (diffFromAvg <= 0)
+                ? "<span style='color:green;'>" + Math.abs(diffFromAvg) + " kg LOWER than average</span>"
+                : "<span style='color:#d62828;'>" + diffFromAvg + " kg HIGHER than average</span>";
+
+            var tableHTML =
+                "<table>" +
+                "<tr><th>Profile / Benchmark</th><th>Daily Emissions (kg CO<sub>2</sub>e)</th><th>Comparison Status</th></tr>" +
+                "<tr class='user_row'><td>Your Today's Footprint</td><td>" + totalCO2.toFixed(2) + " kg</td><td>" + diffText + "</td></tr>" +
+                "<tr><td>Eco-Friendly Student Target</td><td>4.50 kg</td><td>Walk/MTR + Plant-based + BYOB</td></tr>" +
+                "<tr><td>Typical CityUHK Student Avg</td><td>9.20 kg</td><td>Baseline HK Student Estimate</td></tr>" +
+                "<tr><td>Live Session Sample Mean (n=" + studentRecords.length + ")</td><td>" + sampleMean.toFixed(2) + " kg</td><td>Range: " + minVal.toFixed(2) + " - " + maxVal.toFixed(2) + " kg</td></tr>" +
+                "</table>";
+
+            document.getElementById("comparison_table_div").innerHTML = tableHTML;
+
+            // 9. Campus-Wide Extrapolation (20,000 students)
+            var campusDailyTonnes = Math.round((sampleMean * CITYU_POPULATION) / 1000);
+            var campusAnnualTonnes = Math.round((campusDailyTonnes * 300)); // ~300 active campus days/year
+            var treesNeeded = Math.round((campusAnnualTonnes * 1000) / 21); // 1 mature tree absorbs ~21 kg CO2/yr
+
+            document.getElementById("campus_daily").innerHTML = campusDailyTonnes.toLocaleString() + " Tonnes";
+            document.getElementById("campus_annual").innerHTML = campusAnnualTonnes.toLocaleString() + " Tonnes";
+            document.getElementById("campus_trees").innerHTML = treesNeeded.toLocaleString() + " Trees";
+
+            // 10. Generate Personalized Improvement Recommendations
+            generateRecommendations(transportCO2, foodCO2, acCO2, consumablesCO2, plasticBottles, mealFactor);
+
+            // Show the hidden results section
+            document.getElementById("result_section").style.display = "block";
+        }
+
+        // Helper function with parameters to generate custom reduction tips (Lec 05 Slide 32)
+        function generateRecommendations(tCO2, fCO2, acCO2, cCO2, bottles, mealFactor) {
+            var tips = "<ul>";
+
+            // Identify highest emission category
+            if (fCO2 >= tCO2 && fCO2 >= acCO2 && fCO2 >= cCO2 && fCO2 > 0) {
+                tips += "<li><b>Top Priority — Diet Swap:</b> Food is your largest emission source today. Switching from beef (6.5 kg) to chicken/pork (2.5 kg) or vegetarian meals (1.0 kg) at CityU canteens saves up to <b>5.5 kg CO<sub>2</sub>e per meal</b>.</li>";
+            } else if (acCO2 >= tCO2 && acCO2 >= fCO2 && acCO2 >= cCO2 && acCO2 > 0) {
+                tips += "<li><b>Top Priority — Smart Cooling:</b> Air conditioning is your biggest contributor. Setting your hall/study room AC to <b>25.5°C</b> or using library/CMC common study areas reduces individual cooling emissions by ~30%.</li>";
+            } else if (tCO2 >= fCO2 && tCO2 >= acCO2 && tCO2 >= cCO2 && tCO2 > 0) {
+                tips += "<li><b>Top Priority — Low-Carbon Commute:</b> Transit is your highest factor. Choosing MTR (0.04 kg/km) over franchised buses (0.08 kg/km) cuts your commute carbon footprint in half.</li>";
+            }
+
+            // Specific actionable nudges
+            if (bottles > 0) {
+                tips += "<li><b>BYOB (Bring Your Own Bottle):</b> You bought " + bottles + " bottled drink(s) today. Using CityU's free water refill stations across Yeung Kin Man Academic Building saves <b>" + (bottles * 0.15).toFixed(2) + " kg CO<sub>2</sub>e</b> and reduces single-use plastic waste.</li>";
+            }
+            if (mealFactor > 6.0) {
+                tips += "<li><b>Green Monday Challenge:</b> Try going meat-free just 1 day a week on campus—over a 13-week semester, you will save over <b>70 kg CO<sub>2</sub>e</b>.</li>";
+            }
+
+            tips += "<li><b>Digital Note-Taking:</b> Double-sided printing or switching to tablet notes for CS1102 lecture slides eliminates paper waste (0.01 kg/sheet).</li>";
+            tips += "</ul>";
+
+            document.getElementById("tips_content").innerHTML = tips;
+        }
+
+        // Reset Form Function
+        function resetCalculator() {
+            document.getElementById("distance_km").value = 10;
+            document.getElementById("meal_count").value = 1;
+            document.getElementById("ac_hours").value = 4;
+            document.getElementById("paper_sheets").value = 2;
+            document.getElementById("plastic_bottles").value = 1;
+            document.getElementById("result_section").style.display = "none";
+        }
+    </script>
+</head>
+<body>
+
+    <!-- Navigation Bar (Single-page anchor links) -->
+    <div id="navbar">
+        <a href="#banner">Home</a>
+        <a href="#calculator_section">Carbon Calculator</a>
+        <a href="#methodology_section">Emission Factors</a>
+        <a href="#resources_section">CityU &amp; HK Green Links</a>
+    </div>
+
+    <!-- Banner Section -->
+    <div id="banner">
+        <h1>CityU GreenPulse</h1>
+        <p>Interactive Campus Carbon Footprint Calculator &amp; Sustainability Estimator for the CityUHK Community</p>
+        <div>
+            <span class="sdg-badge">SDG 11: Sustainable Cities &amp; Communities</span>
+            <span class="sdg-badge">SDG 12: Responsible Consumption</span>
+            <span class="sdg-badge">SDG 13: Climate Action</span>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <div id="main_container">
+
+        <!-- Section 1: Interactive Calculator -->
+        <div id="calculator_section" class="section_box">
+            <h2>1. Calculate Your Daily Campus Carbon Footprint</h2>
+            <p>Enter your daily campus activities below to measure your personal emissions, compare against CityU peers, and estimate our collective university impact.</p>
+
+            <div class="form_row">
+                <label for="transport_mode">1. Daily Commute to CityUHK (Transport)</label>
+                <select id="transport_mode">
+                    <option value="0.04">MTR (0.04 kg CO2e / km)</option>
+                    <option value="0.08">Bus / Minibus (0.08 kg CO2e / km)</option>
+                    <option value="0">Walk / Cycling (0.00 kg CO2e / km)</option>
+                </select>
+                <br />
+                <input type="number" id="distance_km" value="12" min="0" step="0.5" /> km (Round-trip distance)
+                <div class="hint_text">Tip: Kowloon Tong to Central is ~11 km; Shatin to Kowloon Tong is ~7 km.</div>
+            </div>
+
+            <div class="form_row">
+                <label for="food_type">2. Campus Dining / Lunch Choice (Food)</label>
+                <select id="food_type">
+                    <option value="6.5">Beef-based Meal (e.g., Beef Brisket / Burger — 6.5 kg / meal)</option>
+                    <option value="2.5" selected>Chicken or Pork Meal (e.g., Hainanese Chicken / Char Siu — 2.5 kg / meal)</option>
+                    <option value="1.0">Vegetarian / Plant-based Meal (1.0 kg / meal)</option>
+                </select>
+                <br />
+                <input type="number" id="meal_count" value="1" min="0" max="10" /> meal(s) on campus today
+            </div>
+
+            <div class="form_row">
+                <label for="ac_hours">3. Air Conditioning &amp; Study Electricity (AC)</label>
+                <input type="number" id="ac_hours" value="4" min="0" max="24" step="0.5" /> hours in Student Residence / Study Room
+                <div class="hint_text">Simplified HK grid factor: 1 hour of AC usage ≈ 0.80 kg CO<sub>2</sub>e.</div>
+            </div>
+
+            <div class="form_row">
+                <label for="paper_sheets">4. Paper &amp; Single-Use Plastics (Consumables)</label>
+                <input type="number" id="paper_sheets" value="2" min="0" /> printed A4 sheets (0.01 kg / sheet)
+                <br />
+                <input type="number" id="plastic_bottles" value="1" min="0" /> bottled drinks purchased (0.15 kg / bottle)
+            </div>
+
+            <button class="btn_primary" onclick="calculateFootprint();">Calculate My Footprint</button>
+            <button class="btn_secondary" onclick="resetCalculator();">Reset Inputs</button>
+        </div>
+
+        <!-- Section 2: Dynamic Results, Comparison Ruler & Campus Projection -->
+        <div id="result_section" class="section_box">
+            <h2>2. Your Carbon Footprint Results &amp; Peer Comparison</h2>
+
+            <p>Your Total Daily Footprint: <span id="user_total_display" class="score_highlight">0 kg</span></p>
+            <p>Sustainability Rating: <strong id="user_rating_display"></strong></p>
+
+            <!-- Visual Ruler Bar -->
+            <div id="meter_container">
+                <div id="meter_bar">0 kg</div>
+            </div>
+            <p id="breakdown_display" style="font-size: 14px; color: #555;"></p>
+
+            <!-- Dynamic Peer Comparison Table -->
+            <h3>Peer Comparison Table</h3>
+            <div id="comparison_table_div"></div>
+
+            <!-- Campus-Wide Estimation Model -->
+            <h3 style="margin-top: 25px;">Estimated CityUHK Campus-Wide Impact (20,000 Students)</h3>
+            <p style="font-size: 14px; color: #555;">Since measuring all 20,000 students individually is impossible in real time, our model extrapolates the live session sample mean across the entire CityUHK student body:</p>
+            <div class="campus_grid">
+                <div class="stat_card">
+                    <h4>Projected Daily Campus Total</h4>
+                    <span id="campus_daily">0 Tonnes</span>
+                </div>
+                <div class="stat_card">
+                    <h4>Projected Academic Year (300 Days)</h4>
+                    <span id="campus_annual">0 Tonnes</span>
+                </div>
+                <div class="stat_card">
+                    <h4>Mature Trees Needed to Offset</h4>
+                    <span id="campus_trees">0 Trees</span>
+                </div>
+            </div>
+
+            <!-- Actionable Improvement Plan -->
+            <div id="tips_box">
+                <h3>Actionable Ways to Lower Your Score Tomorrow</h3>
+                <div id="tips_content"></div>
+            </div>
+        </div>
+
+        <!-- Section 3: Methodology & Emission Factors Table -->
+        <div id="methodology_section" class="section_box">
+            <h2>3. Calculation Methodology &amp; Reference Factors</h2>
+            <p>Our model uses standardized Hong Kong carbon emission factors adapted for student daily life:</p>
+            <table>
+                <tr>
+                    <th>Activity Category</th>
+                    <th>Input Metric</th>
+                    <th>Emission Factor</th>
+                    <th>Formula Applied</th>
+                </tr>
+                <tr>
+                    <td>Transport</td>
+                    <td>Distance (km)</td>
+                    <td>MTR: 0.04 | Bus: 0.08 | Walk: 0 kg/km</td>
+                    <td><code>km × factor</code></td>
+                </tr>
+                <tr>
+                    <td>Food</td>
+                    <td>Number of Meals</td>
+                    <td>Beef: 6.5 | Pork/Chicken: 2.5 | Veg: 1.0 kg/meal</td>
+                    <td><code>meals × factor</code></td>
+                </tr>
+                <tr>
+                    <td>Electricity / AC</td>
+                    <td>Duration (Hours)</td>
+                    <td>0.80 kg CO<sub>2</sub>e / hour (HK Grid Avg)</td>
+                    <td><code>hours × 0.80</code></td>
+                </tr>
+                <tr>
+                    <td>Consumables</td>
+                    <td>Sheets &amp; Bottles</td>
+                    <td>Paper: 0.01 kg/sheet | Bottle: 0.15 kg/bottle</td>
+                    <td><code>(sheets × 0.01) + (bottles × 0.15)</code></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Section 4: Educational Resources & External Links -->
+        <div id="resources_section" class="section_box">
+            <h2>4. Learn More &amp; Take Action on Campus</h2>
+            <p>Explore official CityUHK sustainability initiatives and Hong Kong carbon reduction guides:</p>
+            <ul>
+                <li><a href="https://www.cityu.edu.hk/sustainability/" target="_blank">CityUHK Sustainability Portal</a> — Learn about campus green policies, water refill stations, and energy conservation.</li>
+                <li><a href="https://www.carboncalculator.gov.hk/" target="_blank">HKSAR Environmental Protection Department (EPD) Carbon Calculator</a> — Official Hong Kong household carbon audit tool.</li>
+                <li><a href="https://sdgs.un.org/goals" target="_blank">United Nations Sustainable Development Goals (SDGs)</a> — Official framework for SDG 11, SDG 12, and SDG 13.</li>
+                <li><a href="https://www.hko.gov.hk/en/climate_change/climate_change.htm" target="_blank">Hong Kong Observatory: Climate Change in HK</a> — Local climate data and temperature trends.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div id="footer">
+        <p>CS1102 Introduction to Computer Studies — Group Project | Hosted via GitHub Pages</p>
+    </div>
+
+</body>
+</html>
